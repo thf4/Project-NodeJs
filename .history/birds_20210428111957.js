@@ -1,0 +1,1 @@
+const birds = requre('./index.js')
