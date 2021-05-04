@@ -1,0 +1,27 @@
+<div class="jumbotron">
+  <h1 class="display-4">Bem-Vindo ao blog do Node!</h1>
+  <p class="lead">Simples blog desenvolvido com Express + NodeJs + MongoDB</p>
+  <hr class="my-4">
+  <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+  <a class="btn btn-primary btn-lg" href="#" role="button">Sign Free </a>
+</div>
+
+<hr>
+
+<h4>Postagens Recentes: </h4>
+
+{{#each postagens}}
+<div class="card mt-4">
+  <div class="card-body">
+    <small>{{categoria.name}}</small>
+    <hr>
+    <h3>{{titulo}}</h3>
+    <p>{{descricao}}</p>
+    <small>Data de publicação : {{date}}</small><br>
+    <a class="btn btn-success btn-lg mt-3" href="/postagem/{{slug}}" role="button"> Read more </a>
+
+  </div>
+</div>
+{{else}}
+<h5>Nenhuma postagem! </h5>
+{{/each}}
