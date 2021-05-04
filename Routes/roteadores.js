@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const Categoria = require("../Models/categorias");
 const Postagens = require("../Models/Postagens");
+const { eAdmin } = require("../Helpers/eAdmin");
 
-router.use("/", (req, res) => {
+
+router.get("/", (req, res) => {
   Postagens.find()
     .lean()
     .populate("categoria")
@@ -17,12 +19,16 @@ router.use("/", (req, res) => {
     });
 });
 
-router.get("/postagem/:slug", (req, res) => {
+router.get("/404", (req, res) => {
+  res.render("Error 404");
+});
+
+router.get("/postagem/:slug", eAdmin, (req, res) => {
   Postagens.findOne({ slug: req.params.slug })
     .lean()
-    .then((postagem) => {
-      if (postagem) {
-        res.render("postagem/index", { postagem: postagem });
+    .then((postagens) => {
+      if (postagens) {
+        res.render("postagem/index", { postagens: postagens });
       } else {
         req.flash("error_msg", "Esta postagem nao existe");
         res.redirect("/");
@@ -34,11 +40,11 @@ router.get("/postagem/:slug", (req, res) => {
     });
 });
 
-router.get("/admin/categorias/criar", (req, res) => {
+router.get("/admin/categorias/criar",eAdmin, (req, res) => {
   res.render("admin/addcategorias");
 });
 
-router.get("/categorias", (req, res) => {
+router.get("/categorias",eAdmin, (req, res) => {
   Categoria.find()
     .lean()
     .sort({ date: "desc" })
@@ -51,7 +57,7 @@ router.get("/categorias", (req, res) => {
     });
 });
 
-router.post("/admin/categorias/criar", async (req, res) => {
+router.post("/admin/categorias/criar",eAdmin, async (req, res) => {
   const { body = {} } = req;
   const { name, slug } = body;
   const erros = [];
@@ -79,7 +85,7 @@ router.post("/admin/categorias/criar", async (req, res) => {
   }
 });
 
-router.get("/admin/categorias/edit/:id", (req, res) => {
+router.get("/admin/categorias/edit/:id",eAdmin, (req, res) => {
   Categoria.findOne({ _id: req.params.id })
     .then((categorias) => {
       res.render("admin/editcategoria", { categorias: categorias.toJSON() });
@@ -90,7 +96,7 @@ router.get("/admin/categorias/edit/:id", (req, res) => {
     });
 });
 
-router.post("/admin/categorias/edit", (req, res) => {
+router.post("/admin/categorias/edit",eAdmin, (req, res) => {
   Categoria.findOne({ _id: req.body.id }).then((categorias) => {
     categorias.name = req.body.name;
     categorias.slug = req.body.slug;
@@ -108,7 +114,7 @@ router.post("/admin/categorias/edit", (req, res) => {
   });
 });
 
-router.post("/admin/categorias/deletar", (req, res) => {
+router.post("/admin/categorias/deletar", eAdmin,(req, res) => {
   Categoria.remove({ _id: req.body.id })
     .then(() => {
       req.flash("success_msg", "Categoria deletada com sucesso!");
@@ -120,7 +126,7 @@ router.post("/admin/categorias/deletar", (req, res) => {
     });
 });
 
-router.get("/admin/postagens", (req, res) => {
+router.get("/admin/postagens",eAdmin, (req, res) => {
   Postagens.find()
     .populate("categoria")
     .lean()
@@ -134,7 +140,7 @@ router.get("/admin/postagens", (req, res) => {
     });
 });
 
-router.get("/admin/postagens/add", (req, res) => {
+router.get("/admin/postagens/add",eAdmin, (req, res) => {
   Categoria.find()
     .lean()
     .then((categorias) => {
@@ -146,7 +152,7 @@ router.get("/admin/postagens/add", (req, res) => {
     });
 });
 
-router.post("/admin/postagens/nova", async (req, res) => {
+router.post("/admin/postagens/nova",eAdmin, async (req, res) => {
   const { body = {} } = req;
   const { titulo, descricao, conteudo, slug, categoria } = body;
   const erros = [];
@@ -183,7 +189,7 @@ router.post("/admin/postagens/nova", async (req, res) => {
     }
   }
 });
-router.post("/admin/postagens/deletar", (req, res) => {
+router.post("/admin/postagens/deletar",eAdmin, (req, res) => {
   Postagens.deleteOne({ _id: req.body.id })
     .then(() => {
       req.flash("success_msg", "Postagem deletada com sucesso!");
@@ -195,7 +201,7 @@ router.post("/admin/postagens/deletar", (req, res) => {
     });
 });
 
-router.get("/admin/postagens/edit/:id", (req, res) => {
+router.get("/admin/postagens/edit/:id",eAdmin, (req, res) => {
   Postagens.findOne({ _id: req.params.id })
     .lean()
     .then((postagens) => {
@@ -217,7 +223,7 @@ router.get("/admin/postagens/edit/:id", (req, res) => {
     });
 });
 
-router.post("/admin/postagens/edit", async (req, res) => {
+router.post("/admin/postagens/edit",eAdmin, async (req, res) => {
   Postagens.findOne({ _id: req.body.id })
     .then((postagens) => {
       postagens.titulo = req.body.titulo;
